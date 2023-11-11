@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<configuration scan="false" scanPeriod="60 seconds" packagingData="false" debug="false">
+  <appender name="MAIN" class="ch.qos.logback.core.ConsoleAppender">
+    <encoder>
+      <pattern>%d{ISO8601} %-5level [%logger] [%M] %msg%n</pattern>
+    </encoder>
+  </appender>
+
+  <logger name="net.jmp.demo.mongodb.Main" additivity="false" level="debug">
+    <appender-ref ref="MAIN" />
+  </logger>
+
+  <logger name="org.mongodb.driver.client" additivity="false" level="off">
+    <appender-ref ref="MAIN" />
+  </logger>
+  <logger name="org.mongodb.driver.cluster" additivity="false" level="off">
+    <appender-ref ref="MAIN" />
+  </logger>
+
+  <root level="info">
+    <appender-ref ref="MAIN" />
+  </root>
+</configuration>
