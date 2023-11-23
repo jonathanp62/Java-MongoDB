@@ -3,6 +3,8 @@ package net.jmp.demo.mongodb;
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
 
+import java.util.Properties;
+
 import org.bson.codecs.configuration.CodecProvider;
 import org.bson.codecs.configuration.CodecRegistry;
 
@@ -20,18 +22,22 @@ import static org.bson.codecs.configuration.CodecRegistries.fromProviders;
 import static org.bson.codecs.configuration.CodecRegistries.fromRegistries;
 
 final class QuickStart {
-    private static final String MONGODB_URI = "mongodb://localhost:27017";
-    private static final String MONGO_DB_NAME = "local";
-    private static final String MONGO_COLLECTION_NAME = "demo";
-
     private final XLogger logger = new XLogger(LoggerFactory.getLogger(this.getClass().getName()));
+    private final Properties properties;
+    private final String dbName;
+    private final String collectionName;
 
-    QuickStart() {
+    QuickStart(final Properties properties) {
         super();
+
+        this.properties = properties;
+
+        this.dbName = properties.getProperty("mongodb.db", "local");
+        this.collectionName = properties.getProperty("mongodb.collection", "demo");
     }
 
     void run() {
-        try (final var mongoClient = MongoClients.create(MONGODB_URI)) {
+        try (final var mongoClient = MongoClients.create(properties.getProperty("mongodb.uri"))) {
             this.document(mongoClient);
             this.pojo(mongoClient);
             this.documents(mongoClient);
@@ -40,8 +46,8 @@ final class QuickStart {
     }
 
     private void document(final MongoClient mongoClient) {
-        final var database = mongoClient.getDatabase(MONGO_DB_NAME);
-        final var collection = database.getCollection(MONGO_COLLECTION_NAME);
+        final var database = mongoClient.getDatabase(this.dbName);
+        final var collection = database.getCollection(this.collectionName);
         final var doc = collection.find(eq("prodId", 100)).first();
 
         if (doc != null) {
@@ -56,8 +62,8 @@ final class QuickStart {
         final CodecProvider pojoCodecProvider = PojoCodecProvider.builder().automatic(true).build();
         final CodecRegistry pojoCodecRegistry = fromRegistries(getDefaultCodecRegistry(), fromProviders(pojoCodecProvider));
 
-        final var database = mongoClient.getDatabase(MONGO_DB_NAME).withCodecRegistry(pojoCodecRegistry);
-        final var collection = database.getCollection(MONGO_COLLECTION_NAME, Demo.class);
+        final var database = mongoClient.getDatabase(this.dbName).withCodecRegistry(pojoCodecRegistry);
+        final var collection = database.getCollection(this.collectionName, Demo.class);
         final var demo = collection.find(eq("prodId", 100)).first();
 
         if (demo != null) {
@@ -69,8 +75,8 @@ final class QuickStart {
     }
 
     private void documents(final MongoClient mongoClient) {
-        final var database = mongoClient.getDatabase(MONGO_DB_NAME);
-        final var collection = database.getCollection(MONGO_COLLECTION_NAME);
+        final var database = mongoClient.getDatabase(this.dbName);
+        final var collection = database.getCollection(this.collectionName);
         final var docs = collection.find();
 
         for (final var doc : docs) {
@@ -83,8 +89,8 @@ final class QuickStart {
         final CodecProvider pojoCodecProvider = PojoCodecProvider.builder().automatic(true).build();
         final CodecRegistry pojoCodecRegistry = fromRegistries(getDefaultCodecRegistry(), fromProviders(pojoCodecProvider));
 
-        final var database = mongoClient.getDatabase(MONGO_DB_NAME).withCodecRegistry(pojoCodecRegistry);
-        final var collection = database.getCollection(MONGO_COLLECTION_NAME, Demo.class);
+        final var database = mongoClient.getDatabase(this.dbName).withCodecRegistry(pojoCodecRegistry);
+        final var collection = database.getCollection(this.collectionName, Demo.class);
         final var demos = collection.find();
 
         for (final var demo : demos) {
